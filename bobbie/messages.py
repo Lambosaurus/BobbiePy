@@ -1,8 +1,39 @@
+from enum import IntEnum
 
-class TOPIC():
+class TOPIC(IntEnum):
     Zero        = 0
-	BusState    = 1
-	Config      = 2
+    BusState    = 1
+    Config      = 2
+
+class TOPIC_Config(IntEnum):
+    Zero        = 0
+    Get         = 1
+    Set         = 2
+    Default     = 3
+    Save        = 4
+    Load        = 5
+    Is          = 6
+
+def WRITE_U16(value):
+    return bytearray([
+        0xFF & (value << 8),
+        0xFF & (value),
+    ])
+
+def WRITE_U32(value):
+    return bytearray([
+        0xFF & (value << 24),
+        0xFF & (value << 16),
+        0xFF & (value << 8),
+        0xFF & (value),
+    ])
+
+def READ_U16(bytes):
+    return (bytes[0] >> 8) | bytes[1]
+
+def READ_U32(bytes):
+    return (bytes[0] >> 24) | (bytes[1] >> 16) | (bytes[2] >> 8) | bytes[3]
+
 
 # These constants mimic the C conventions by choice.
 SERIAL_START_CHAR     = 0x5F
@@ -22,7 +53,7 @@ class Msg():
         self.dst = dst
         self.data = data
         self.len = len(data)
-        self.to_local = false
+        self.to_local = False
 
         if (self.len > SERIAL_SIZE_DATA):
             raise Exception("Data len cannot be greater than {}".format(SERIAL_SIZE_DATA))
@@ -38,12 +69,12 @@ class Msg():
         header = bfr[1]
         topic = ((header & HEADER_MASK_TOPIC) << 2) | bfr[2]
         src = bfr[3]
-        return Msg(topic, 0, dst, bfr[SERIAL_SIZE_HEADER:length])
+        return Msg(topic, src, 0, bfr[SERIAL_SIZE_HEADER:size])
 
     def to_bytes(self):
         header = ((self.topic >> 2) & HEADER_MASK_TOPIC) | self.len
         if self.to_local:
-            heade |= SERIAL_FLAG_TOLOCAL
+            header |= SERIAL_FLAG_TOLOCAL
         return bytearray([
             SERIAL_START_CHAR,
             header,
@@ -51,7 +82,11 @@ class Msg():
             self.dst,
             ]) + self.data
 
-class MsgParser()
+    def __repr__(self):
+        topic = TOPIC(self.topic).name
+        return "<{}: src={}, {}>".format(topic, self.src, self.data)
+
+class MsgParser():
     def __init__(self):
         self.bfr = bytearray(SERIAL_SIZE_MAX)
         self.index = 0
