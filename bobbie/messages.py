@@ -5,15 +5,6 @@ class TOPIC(IntEnum):
     BusState    = 1
     Config      = 2
 
-class TOPIC_Config(IntEnum):
-    Zero        = 0
-    Get         = 1
-    Set         = 2
-    Default     = 3
-    Save        = 4
-    Load        = 5
-    Is          = 6
-
 def WRITE_U16(value):
     return bytearray([
         0xFF & (value << 8),
@@ -47,9 +38,9 @@ HEADER_MASK_FLAGS	  = 0x30
 SERIAL_FLAG_TOLOCAL	  = 0x10
 
 class Msg():
-    def __init__(self, topic, src, dst, data):
+    def __init__(self, topic, dst, data):
         self.topic = topic
-        self.src = src
+        self.src = 0
         self.dst = dst
         self.data = data
         self.len = len(data)
@@ -59,17 +50,11 @@ class Msg():
             raise Exception("Data len cannot be greater than {}".format(SERIAL_SIZE_DATA))
 
     @staticmethod
-    def create(topic, dst, data=bytearray()):
-        if type(data) != bytearray:
-            data = bytearray(data)
-        return Msg(topic, 0, dst, data)
-
-    @staticmethod
     def from_bytes(bfr, size):
         header = bfr[1]
         topic = ((header & HEADER_MASK_TOPIC) << 2) | bfr[2]
-        src = bfr[3]
-        return Msg(topic, src, 0, bfr[SERIAL_SIZE_HEADER:size])
+        msg = Msg(topic, 0, bfr[SERIAL_SIZE_HEADER:size])
+        msg.src = bfr[3]
 
     def to_bytes(self):
         header = ((self.topic >> 2) & HEADER_MASK_TOPIC) | self.len

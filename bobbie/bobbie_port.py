@@ -16,7 +16,7 @@ class BobbiePort():
     def poll(self):
         self._read_messages()
 
-    def _write_message(self, msg):
+    def send_message(self, msg):
         self.port.write(msg.to_bytes())
 
     def _read_messages(self):
