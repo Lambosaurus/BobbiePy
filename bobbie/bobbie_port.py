@@ -1,9 +1,16 @@
-import bobbie.messages as messages
+from bobbie.messages import MsgParser
+from bobbie.bobbie_node import BobbieNode
 
 class BobbiePort():
     def __init__(self, port):
         self._open_serialport(port)
-        self.parser = messages.MsgParser()
+        self.parser = MsgParser()
+        self.nodes = []
+
+    def create_node(self, address):
+        node = BobbieNode(self, address)
+        self.nodes.append(node)
+        return node
 
     def _open_serialport(self, port):
         if type(port) == str:
