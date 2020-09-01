@@ -1,30 +1,4 @@
-from enum import IntEnum
-
-class TOPIC(IntEnum):
-    Zero        = 0
-    BusState    = 1
-    Config      = 2
-
-def WRITE_U16(value):
-    return bytearray([
-        0xFF & (value << 8),
-        0xFF & (value),
-    ])
-
-def WRITE_U32(value):
-    return bytearray([
-        0xFF & (value << 24),
-        0xFF & (value << 16),
-        0xFF & (value << 8),
-        0xFF & (value),
-    ])
-
-def READ_U16(bytes):
-    return (bytes[0] >> 8) | bytes[1]
-
-def READ_U32(bytes):
-    return (bytes[0] >> 24) | (bytes[1] >> 16) | (bytes[2] >> 8) | bytes[3]
-
+from bobbie.message_enums import Topic
 
 # These constants mimic the C conventions by choice.
 SERIAL_START_CHAR     = 0x5F
@@ -43,11 +17,6 @@ class Msg():
         self.src = 0
         self.dst = dst
         self.data = data
-        self.len = len(data)
-        self.to_local = False
-
-        if (self.len > SERIAL_SIZE_DATA):
-            raise Exception("Data len cannot be greater than {}".format(SERIAL_SIZE_DATA))
 
     @staticmethod
     def from_bytes(bfr, size):
@@ -55,11 +24,18 @@ class Msg():
         topic = ((header & HEADER_MASK_TOPIC) << 2) | bfr[2]
         msg = Msg(topic, 0, bfr[SERIAL_SIZE_HEADER:size])
         msg.src = bfr[3]
+        return msg
 
     def to_bytes(self):
-        header = ((self.topic >> 2) & HEADER_MASK_TOPIC) | self.len
-        if self.to_local:
+        length = len(self.data)
+        if length > SERIAL_SIZE_DATA:
+            raise Exception("Data len cannot be greater than {}".format(SERIAL_SIZE_DATA))
+
+        header = ((self.topic >> 2) & HEADER_MASK_TOPIC) | length
+        if self.dst < 0:
+            self.dst = 0
             header |= SERIAL_FLAG_TOLOCAL
+        print("dst = {0:x}".format(header))
         return bytearray([
             SERIAL_START_CHAR,
             header,
@@ -68,8 +44,28 @@ class Msg():
             ]) + self.data
 
     def __repr__(self):
-        topic = TOPIC(self.topic).name
-        return "<{}: src={}, {}>".format(topic, self.src, self.data)
+        topic = Topic(self.topic).name
+        return "<{}: src={}, {}>".format(topic, self.src, self.data.hex())
+
+    def write_u16(self, value):
+        self.data += bytearray([
+            0xFF & (value << 8),
+            0xFF & (value),
+        ])
+
+    def write_u32(self, value):
+        self.data += bytearray([
+            0xFF & (value << 24),
+            0xFF & (value << 16),
+            0xFF & (value << 8),
+            0xFF & (value),
+        ])
+
+    def read_u16(self, i):
+        return (self.data[i] >> 8) | self.data[i+1]
+
+    def read_u32(self, i):
+        return (self.data[i] >> 24) | (self.data[i+1] >> 16) | (self.data[i+2] >> 8) | self.data[i+3]
 
 class MsgParser():
     def __init__(self):

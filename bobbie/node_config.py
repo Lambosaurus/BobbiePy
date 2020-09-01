@@ -1,21 +1,18 @@
 from enum import IntEnum
-from bobbie.messages import *
+from bobbie.messages import Msg
+from bobbie.message_enums import *
 
-class TOPIC_Config(IntEnum):
-    Get         = 0
-    Set         = 1
-    Default     = 2
-    Save        = 3
-    Load        = 4
-    Is          = 5
-
-class CONFIG(IntEnum):
+class Config(IntEnum):
     Address          = 0
     LEDAlpha         = 1
     ErrorCooldown    = 2
     ActiveTimeout    = 3
     SerialBridge     = 4
 
+class SerialBridge(IntEnum):
+    Silent = 0,
+    Local = 1,
+    All = 2
 
 class NodeConfig():
     def __init__(self, node):
@@ -23,19 +20,27 @@ class NodeConfig():
         self.port = node.port
 
     def set(self, config, value):
-        self._send(bytearray([TOPIC_Config.Set]) + WRITE_U16(config) + WRITE_U32(value))
+        msg = self._msg(TopicConfig.Set)
+        msg.write_u16(config)
+        msg.write_u32(value)
+        self._send(msg)
 
-    def get(self, config, value):
-        self._send(bytearray([TOPIC_Config.Get]) + WRITE_U16(config))
+    def get(self, config):
+        msg = self._msg(TopicConfig.Get)
+        msg.write_u16(config)
+        self._send(msg)
 
     def load(self, config, value):
-        self._send(bytearray([TOPIC_Config.Load]))
+        self._send(self._msg(TopicConfig.Load))
 
     def save(self, config, value):
-        self._send(bytearray([TOPIC_Config.Save]))
+        self._send(self._msg(TopicConfig.Save))
 
     def default(self, config, value):
-        self._send(bytearray([TOPIC_Config.Default]))
+        self._send(self._msg(TopicConfig.Default))
 
-    def _send(self, data):
-        self.port.send_message( Msg(TOPIC.Config, self.node.address, data ) )
+    def _msg(self, topic):
+        return Msg(Topic.Config, self.node.address, bytearray([topic]))
+
+    def _send(self, msg):
+        self.port.send_message( msg )

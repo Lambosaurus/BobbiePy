@@ -1,16 +1,27 @@
-from bobbie.messages import MsgParser
+from bobbie.messages import MsgParser, Msg
 from bobbie.bobbie_node import BobbieNode
+from bobbie.message_enums import *
+
 
 class BobbiePort():
     def __init__(self, port):
         self._open_serialport(port)
         self.parser = MsgParser()
-        self.nodes = []
+        self.nodes = {}
 
     def create_node(self, address):
         node = BobbieNode(self, address)
-        self.nodes.append(node)
+        self.nodes[address] = node
         return node
+
+    def remove_node(self, node):
+        node.port = None
+        if node.address in self.nodes:
+            self.nodes.pop(node.address)
+
+    def discover_nodes(self):
+        msg = Msg(Topic.Hello, 0, bytearray([TopicHello.Request]))
+        self.send_message(msg)
 
     def _open_serialport(self, port):
         if type(port) == str:
@@ -30,3 +41,5 @@ class BobbiePort():
         data = self.port.read(1024)
         for msg in self.parser.parse(data):
             print(msg)
+            if msg.src in self.nodes:
+                self.node.handle_msg(msg)
