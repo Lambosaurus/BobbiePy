@@ -1,4 +1,4 @@
-from bobbie.bobbie_port import BobbiePort as Bobbie
+from bobbie.port import Bobbie
 
 
 

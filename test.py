@@ -1,19 +1,19 @@
 import bobbie
 import time
 
-from bobbie.node_config import Config
+from bobbie.config import Config
 
 if __name__ == "__main__":
     bobbie = bobbie.Bobbie("COM7")
 
-    node = bobbie.create_node(-1)
-    node.config.set( Config.SerialBridge, 2 )
+    node = bobbie.immediate_node.config.set( Config.SerialBridge, 2 )
+    nodes = bobbie.discover_nodes().wait()
+    for n in nodes:
+        n.check_exists().callback( lambda x: print(x) )
+        n.error.subscribe(lambda x: print(x), True)
+        #print( n.check_exists().wait() )
     
-    for i in range(10):
-        bobbie.poll()
-        time.sleep(0.1)
-
-    bobbie.discover_nodes()
+    bobbie.wait_for_promises()
 
     while True:
         bobbie.poll()

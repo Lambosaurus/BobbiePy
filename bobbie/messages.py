@@ -1,4 +1,4 @@
-from bobbie.message_enums import Topic
+from bobbie.enums import Topic
 
 # These constants mimic the C conventions by choice.
 SERIAL_START_CHAR     = 0x5F
@@ -35,7 +35,6 @@ class Msg():
         if self.dst < 0:
             self.dst = 0
             header |= SERIAL_FLAG_TOLOCAL
-        print("dst = {0:x}".format(header))
         return bytearray([
             SERIAL_START_CHAR,
             header,
@@ -47,25 +46,31 @@ class Msg():
         topic = Topic(self.topic).name
         return "<{}: src={}, {}>".format(topic, self.src, self.data.hex())
 
+    def write_u8(self, value):
+        self.data.append(value)
+
     def write_u16(self, value):
         self.data += bytearray([
-            0xFF & (value << 8),
+            0xFF & (value >> 8),
             0xFF & (value),
         ])
 
     def write_u32(self, value):
         self.data += bytearray([
-            0xFF & (value << 24),
-            0xFF & (value << 16),
-            0xFF & (value << 8),
+            0xFF & (value >> 24),
+            0xFF & (value >> 16),
+            0xFF & (value >> 8),
             0xFF & (value),
         ])
 
+    def read_u8(self, i):
+        return self.data[i]
+
     def read_u16(self, i):
-        return (self.data[i] >> 8) | self.data[i+1]
+        return (self.data[i] << 8) | self.data[i+1]
 
     def read_u32(self, i):
-        return (self.data[i] >> 24) | (self.data[i+1] >> 16) | (self.data[i+2] >> 8) | self.data[i+3]
+        return (self.data[i] << 24) | (self.data[i+1] << 16) | (self.data[i+2] << 8) | self.data[i+3]
 
 class MsgParser():
     def __init__(self):
