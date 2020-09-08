@@ -8,7 +8,7 @@ from bobbie.enums import *
 class Promise():
     def __init__(self, port, timeout):
         self.value = None
-        self.done = False
+        self.is_complete = False
         self.__end_time = timeout + time.time()
         self.__port = port
         self.__callbacks = []
@@ -28,7 +28,7 @@ class Promise():
         if self.__mutation:
             value = self.__mutation(value)
         self.value = value
-        self.done = True
+        self.is_complete = True
         for callback in self.__callbacks:
             callback(value)
         self.__port._remove_promise(self)

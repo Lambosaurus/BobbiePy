@@ -27,6 +27,10 @@ class Node():
         promise.callback(lambda v: self.state.unsubscribe(promise._set))
         return promise
 
+    def clear_error(self):
+        msg = Msg(Topic.State, self.address, bytearray([TopicState.Clear]))
+        self._port.send_message(msg)
+
     def remove(self):
         self._port.remove_node(self)
 
