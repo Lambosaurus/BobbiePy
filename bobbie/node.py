@@ -12,10 +12,6 @@ class Node():
         self.error = props.LiveProperty()
         self.board = board
 
-    @staticmethod
-    def create(port, address, board):
-        return Node(port, address, board)
-
     def check_exists(self, timeout = 0.5):
         msg = Msg(Topic.State, self.address, bytearray([
             TopicState.Request

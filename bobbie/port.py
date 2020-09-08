@@ -1,9 +1,8 @@
 import time
 
 from bobbie.messages import MsgParser, Msg
-from bobbie.node import Node
 from bobbie.enums import *
-
+import bobbie.nodes
 
 class Promise():
     def __init__(self, port, timeout):
@@ -34,7 +33,7 @@ class Promise():
         self.__port._remove_promise(self)
 
     def wait(self):
-        while not self.done:
+        while not self.is_complete:
             time.sleep(0.01)
             self.__port.poll()
         return self.value
@@ -48,12 +47,12 @@ class Bobbie():
         self.__open_serialport(port)
         self.__parser = MsgParser()
         self.nodes = {}
-        self.broadcast_node = Node.create(self, 0, None)
-        self.immediate_node = Node.create(self, -1, None)
+        self.broadcast_node = bobbie.nodes._create_node(self, 0, None)
+        self.immediate_node = bobbie.nodes._create_node(self, -1, None)
         self._promises = {}
 
     def create_node(self, address, board):
-        node = Node.create(self, address, board)
+        node = bobbie.nodes._create_node(self, address, board)
         self.nodes[address] = node
         return node
 

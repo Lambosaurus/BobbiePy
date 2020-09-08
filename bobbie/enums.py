@@ -6,6 +6,7 @@ class Topic(IntEnum):
     BusState    = 1
     Config      = 2
     State       = 3
+    Servo       = 4
 
 class TopicConfig(IntEnum):
     Get         = 0
@@ -34,7 +35,10 @@ class BoardType(IntEnum):
     Servo       = 3
 
 class Error(IntEnum):
-	NONE              = 0
-	BusTimeout        = 1
-	DuplicateAddress  = 2
-	NoAddress         = 3
+    NONE              = 0
+    BusTimeout        = 1
+    DuplicateAddress  = 2
+    NoAddress         = 3
+    PsuUndervolt      = 4
+    PsuOvervolt       = 5
+    OverCurrent       = 6
