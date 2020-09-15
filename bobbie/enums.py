@@ -42,3 +42,4 @@ class Error(IntEnum):
     PsuUndervolt      = 4
     PsuOvervolt       = 5
     OverCurrent       = 6
+    Overtemp          = 7
