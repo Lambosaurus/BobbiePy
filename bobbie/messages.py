@@ -66,8 +66,16 @@ class Msg():
     def read_u8(self, i):
         return self.data[i]
 
+    def read_i8(self, i):
+        u8 = self.read_u8(i)
+        return u8 - 0x100 if u8 & 0x80 else u8
+
     def read_u16(self, i):
         return (self.data[i] << 8) | self.data[i+1]
+
+    def read_i16(self, i):
+        u16 = self.read_u16(i)
+        return u16 - 0x10000 if u16 & 0x8000 else u16
 
     def read_u32(self, i):
         return (self.data[i] << 24) | (self.data[i+1] << 16) | (self.data[i+2] << 8) | self.data[i+3]
@@ -79,7 +87,6 @@ class MsgParser():
         self.length = 0
 
     def parse(self, data):
-
         for ch in data:
             if self.index == 0:
                 if ch == SERIAL_START_CHAR:

@@ -15,8 +15,13 @@ if __name__ == "__main__":
     bobbie.wait_for_promises()
 
     servo = bobbie.nodes[3]
+    servo.config.set( Config.FeedbackActive, 100 )
+    servo.config.set( Config.FeedbackIdle, 100)
+    servo.voltage.subscribe( lambda x: print("Voltage: {}".format(x)) )
 
     while True:
-        bobbie.poll()
-        time.sleep(0.01)
+        for i in range(1000, 2000, 50):
+            bobbie.poll()
+            time.sleep(0.1)
+            n.pulse([(0,i)])
 

@@ -10,7 +10,9 @@ class Config(IntEnum):
     ActiveTimeout    = 3
     SerialBridge     = 4
     TempLimit        = 5
-    COUNT            = 6
+    FeedbackIdle     = 6
+    FeedbackActive   = 7
+    COUNT            = 8
 
 class SerialBridge(IntEnum):
     Silent = 0,
