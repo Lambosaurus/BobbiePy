@@ -9,7 +9,8 @@ class Config(IntEnum):
     ErrorCooldown    = 2
     ActiveTimeout    = 3
     SerialBridge     = 4
-    COUNT            = 5
+    TempLimit        = 5
+    COUNT            = 6
 
 class SerialBridge(IntEnum):
     Silent = 0,
@@ -33,7 +34,7 @@ class NodeConfig():
         self.node = node
         self.port = node._port
         self.__props = []
-        for i in range(Config.COUNT):
+        for _ in range(Config.COUNT):
             self.__props.append(LiveProperty())
 
 
