@@ -1,9 +1,13 @@
 import bobbie
 import time
+import random
 
 from bobbie.config import Config
+from plotter import Plotter
+
 
 if __name__ == "__main__":
+
     bobbie = bobbie.Bobbie("COM7")
 
     node = bobbie.immediate_node.config.set( Config.SerialBridge, 2 )
@@ -12,16 +16,19 @@ if __name__ == "__main__":
         n.error.subscribe(lambda x: print(x), True)
         print(n)
     
-    bobbie.wait_for_promises()
-
+    plot = Plotter(100, (0, 10.0))
+    plot.start()
+    
     servo = bobbie.nodes[3]
     servo.config.set( Config.FeedbackActive, 100 )
     servo.config.set( Config.FeedbackIdle, 100)
-    servo.voltage.subscribe( lambda x: print("Voltage: {}".format(x)) )
+    servo.current.subscribe( lambda x: plot.update(x) )
 
+    freq = 20
     while True:
-        for i in range(1000, 2000, 50):
+        k = random.randint(-400, 400)
+        for i in range(int(freq/2)):
             bobbie.poll()
-            time.sleep(0.1)
-            n.pulse([(0,i)])
+            n.pulse([(0,1500+k),(1,1500-k)])
+            time.sleep(1.0/freq)
 
