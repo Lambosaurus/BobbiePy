@@ -35,6 +35,11 @@ class Node():
             self.config._handle_msg(msg)
         elif msg.topic == Topic.State:
             self.__handle_state(msg)
+        else:
+            self._handle_fbk_msg(msg)
+
+    def _handle_fbk_msg(self, msg):
+        pass
 
     def __handle_state(self, msg):
         if len(msg.data) >= 5 and msg.data[0] == TopicState.Is:

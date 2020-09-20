@@ -7,6 +7,7 @@ class Topic(IntEnum):
     Config      = 2
     State       = 3
     Servo       = 4
+    ServoFbk    = 5
 
 class TopicConfig(IntEnum):
     Get         = 0
