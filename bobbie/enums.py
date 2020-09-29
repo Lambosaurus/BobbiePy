@@ -8,6 +8,8 @@ class Topic(IntEnum):
     State       = 3
     Servo       = 4
     ServoFbk    = 5
+    Motor       = 6
+    MotorFbk    = 7
 
 class TopicConfig(IntEnum):
     Get         = 0
