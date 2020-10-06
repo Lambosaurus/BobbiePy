@@ -12,8 +12,7 @@ class Config(IntEnum):
     TempLimit        = 5
     FeedbackIdle     = 6
     FeedbackActive   = 7
-    MotorBrakeThreshold = 8
-    COUNT            = 9
+    COUNT            = 8
 
 class SerialBridge(IntEnum):
     Silent = 0,
